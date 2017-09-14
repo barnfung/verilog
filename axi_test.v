@@ -5,13 +5,17 @@
 AXI 4 Testing Utility
 ==================================
 
-Stores and loads data to/from a specified address using full AXI4 (Memory-Mapped) interface
+Stores and loads data to/from a specified address using full AXI4 interface
 
 Parameters
 -------------
 | Parameter | Default | Explanation |
 |-----------|:-------:|------------:|
-
+| `AWIDTH` | 64 | Bitwidth of the address bus |
+| `DWIDTH` | 64 | Bitwidth of the data bus |
+| `IDWIDTH` | 4 | Bitwidth of the ID bus |
+| `UDWIDTH` | 0 | Bitwidth of the user data bus |
+| `NUM_WORDS` | 24 | Depth of the AXI4dummy internal memory |
 
 Interface
 ------------
@@ -189,6 +193,7 @@ module axi_tester ();
       .s_axi_rready(          load_m_axi_rready)
       );
 
+  // This block is for gtkwave
   initial
    begin
       $dumpfile("axi_tester.vcd");
@@ -212,14 +217,7 @@ module axi_tester ();
         // ( awid, awlen, awsize, awburst, awaddr, wdata)
     #10
     load(4'b0000,8'b00,3'b011, 2'b00, 64'h0000_0000_0000_0000);
-      // (arid, arlen, arsize, arburst, araddr)
     #10
-    // store(4'b0000,8'b00,3'b011, 2'b00, 64'h0000_0000_0000_0008, 64'hC0FF_EEEE_EEEE_EEEE);
-    // #10
-    // load(4'b0000,8'b00,3'b011, 2'b00, 64'h0000_0000_0000_0008);
-    // #10
-    // load(4'b0000,8'b00,3'b011, 2'b00, 64'h0000_0000_0000_0000);
-    // #15
     $finish;
   end
   /* ==== TEST ENDS HERE ==== */
@@ -244,7 +242,7 @@ During reset the following interface requirements apply:
         end
       reset_axi_n = 1;
       $display ("");
-      $display("Reset complete, Time = %0d units", $time);
+      $display("==== Reset complete, Time = %0d units", $time);
       $display ("");
     end
 
@@ -315,26 +313,9 @@ During reset the following interface requirements apply:
        join
 
        #1
-       $display ("Store data = 0x%h, Address = 0x%h", wdata, awaddr);
+       $display ("==== Store data = 0x%h, Address = 0x%h", wdata, awaddr);
        $display ("");
     end
-
-    // reg [AWID-1:0]                store_m_axi_awid;         // write address ID
-    // reg [AWLEN-1:0]               store_m_axi_awlen;        // write address burst length
-    // reg [AWSIZE-1:0]              store_m_axi_awsize;       // write address burst size
-    // reg [AWBURST-1:0]             store_m_axi_awburst;      // write address burst type
-    // reg                           store_m_axi_awvalid;      // write address valid
-    // wire                          store_s_axi_awready;      // write address ready
-
-    // reg [WSTRB-1:0]               store_m_axi_wstrb;        // write data mask
-    // reg                           store_m_axi_wlast;        // write data last (end of burst)
-    // reg                           store_m_axi_wvalid;       // write valid
-    // wire                          store_m_axi_wready;       // write ready
-
-    // wire [BID-1:0]                store_m_axi_bid;          // write response id
-    // wire [BRESP-1:0]              store_m_axi_bresp;        // write response
-    // wire                          store_m_axi_bvalid;       // write response valid
-    // reg                           store_m_axi_bready;       // write response ready
 
    endtask
 
@@ -372,27 +353,13 @@ During reset the following interface requirements apply:
             if (DEBUG == 1) begin
               if (load_s_axi_rresp === 2'b00) $display ("RRESP = %0d (OK) @ Time = %0d units", load_s_axi_rresp, $time);
             end
-            $display ("Loaded data = 0x%h, Address = 0x%h", load_s_axi_rdata, araddr);
+            $display ("==== Loaded data = 0x%h, Address = 0x%h", load_s_axi_rdata, araddr);
             $display ("");
             #1
             load_m_axi_rready <= 0;
           end
        join
      end
-
-    // reg [ARID-1:0]                load_m_axi_arid;         // read address id
-    // reg [ARLEN-1:0]               load_m_axi_arlen;        // read address burst length
-    // reg [ARSIZE-1:0]              load_m_axi_arsize;       // read address burst size
-    // reg [ARBURST-1:0]             load_m_axi_arburst;      // read address burst type
-    // reg                           load_m_axi_arvalid;      // read address valid
-    // wire                          load_m_axi_arready;      // read address ready
-
-    // wire [RID-1:0]                load_s_axi_rid;          // read response id
-    // wire [RDATA-1:0]              load_s_axi_rdata;        // read response data
-    // wire [RRESP-1:0]              load_s_axi_rresp;        // read response
-    // wire                          load_s_axi_rlast;        // read response last (end of burst)
-    // wire                          load_s_axi_rvalid;       // read valid
-    // reg                           load_m_axi_rready;       // read ready
 
   endtask
 
