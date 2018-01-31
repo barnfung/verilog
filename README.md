@@ -1,2 +1,2 @@
 # verilog
-various verilog modules
+various verilog thingamajigs
